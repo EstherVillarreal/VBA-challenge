@@ -1,0 +1,106 @@
+Sub Stock_Data()
+
+'loop through the Worksheets
+
+For Each ws In Worksheets
+
+    'Declare variables
+    Dim Ticker As String
+    Dim Opening As Double
+    Dim Closing As Double
+    Dim Volume As Long
+    Dim YearlyChange As Double
+    Dim PerChange As Double
+    Dim TotalStockVol As Double
+    Dim Summary As Integer
+
+    'Set initial values
+    YearlyChange = 0
+    PerChange = 0
+    TotalStockVol = 0
+    Summary = 2
+
+    'Location of First Open Price value
+    Opening = ws.Cells(2, 3).Value
+    
+    'Loop through all rows
+    For i = 2 To ws.Cells(Rows.Count, 1).End(xlUp).Row
+    
+    'Location of Volume value
+    Volume = ws.Cells(i, 7).Value
+        
+        'See if ticker symbols from the next row is the same as the previous one
+        If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+        
+            'Location of Close Price
+            Closing = ws.Cells(i, 6).Value
+        
+            'Location of ticker symbols
+            Ticker = ws.Cells(i, 1).Value
+            
+            'Print Table titles
+            ws.Range("I1").Value = "Ticker"
+            ws.Range("J1").Value = "Yearly Change"
+            ws.Range("K1").Value = "Percent Change"
+            ws.Range("L1").Value = "Total Stock Volume"
+            
+            'Expand width of new columns as data within the cells are large
+            ws.Range("I1").Columns.AutoFit
+            ws.Range("J1").Columns.AutoFit
+            ws.Range("K1").Columns.AutoFit
+            ws.Range("L1").Columns.AutoFit
+            
+            'Summary table: print Yearly Change calculation
+            YearlyChange = Closing - Opening
+            ws.Range("I" & Summary).Value = Ticker
+            ws.Range("J" & Summary).Value = YearlyChange
+            
+            'Conditional formatting in green for positive changes
+            If YearlyChange >= 0 Then
+                ws.Range("J" & Summary).Interior.ColorIndex = 4
+            
+            'Conditional formatting in red for negative changes
+            ElseIf YearlyChange < 0 Then
+                ws.Range("J" & Summary).Interior.ColorIndex = 3
+            
+            End If
+            
+             'Use conditional IF to avoid an error when dividing by 0
+            If Opening = 0 Then
+                PerChange = 0
+            Else
+                PerChange = (Closing - Opening) / Opening
+            End If
+            
+            'Summary table: print Percent Change calculation; change format to %
+            ws.Range("K" & Summary).Value = PerChange
+            ws.Range("K" & Summary).NumberFormat = "0.00%"
+            
+            'Summary table: print the Total Stock Volume calculation
+            TotalStockVol = TotalStockVol + Volume
+            ws.Range("L" & Summary).Value = TotalStockVol
+
+             'Summary table: add one row
+            Summary = Summary + 1
+
+            'Summary table: reset values after every ticker
+            YearlyChange = 0
+            PercentChange = 0
+            StockVol = 0
+            Opening = ws.Cells(i + 1, 3).Value
+
+       Else
+
+            'Add Change to ticker
+            YearlyChange = Closing - Opening
+            
+            'Add Volume to ticker
+            TotStockVol = TotStockVol + Volume
+
+        End If
+        
+    Next i
+
+Next ws
+
+End Sub
